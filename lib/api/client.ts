@@ -1,7 +1,14 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_ENDPOINTS, TOKEN_KEYS } from '@/lib/constants/api';
 import { getDeviceId } from '@/lib/utils/device';
+import { handleApiError } from '@/lib/services/errorHandler';
+import { notification } from '@/lib/services/notification';
 import type { ApiErrorResponse, RefreshTokenResponse, ApiResponse } from '@/types/api';
+
+// Configuration for global error handling
+interface ApiClientConfig {
+  showGlobalErrors?: boolean;
+}
 
 // Create axios instance
 export const apiClient = axios.create({
@@ -65,16 +72,21 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle 401 and token refresh
+// Response interceptor - handle errors and token refresh
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
+      _skipGlobalErrorHandler?: boolean;
     };
 
-    // If no config or already retried, reject
+    // If no config or already retried, handle error and reject
     if (!originalRequest || originalRequest._retry) {
+      // Show global error notification unless explicitly disabled
+      if (!originalRequest?._skipGlobalErrorHandler) {
+        handleGlobalError(error);
+      }
       return Promise.reject(error);
     }
 
@@ -85,6 +97,7 @@ apiClient.interceptors.response.use(
       // No refresh token available, redirect to login
       if (!refreshToken) {
         clearTokens();
+        notification.warning('Your session has expired. Please sign in again.');
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
@@ -139,6 +152,7 @@ apiClient.interceptors.response.use(
         // Refresh failed, clear tokens and redirect to login
         processQueue(refreshError as Error, null);
         clearTokens();
+        notification.warning('Your session has expired. Please sign in again.');
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
@@ -148,8 +162,39 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // Handle other HTTP errors with global error handler
+    if (!originalRequest._skipGlobalErrorHandler) {
+      handleGlobalError(error);
+    }
+
     return Promise.reject(error);
   }
 );
+
+/**
+ * Handle global errors based on HTTP status codes
+ */
+function handleGlobalError(error: AxiosError<ApiErrorResponse>) {
+  const status = error.response?.status;
+  
+  // Don't show notifications for certain status codes that are handled elsewhere
+  // 401 is handled above, 422 validation errors are typically handled by forms
+  if (status === 401 || status === 422) {
+    return;
+  }
+
+  // Use the centralized error handler for all other errors
+  handleApiError(error);
+}
+
+/**
+ * Create a request config that skips global error handling
+ * Useful when you want to handle errors locally in a component
+ */
+export function withLocalErrorHandling() {
+  return {
+    _skipGlobalErrorHandler: true,
+  };
+}
 
 export default apiClient;

@@ -135,13 +135,5 @@ export function useResetPassword() {
 }
 
 // Helper to extract error message from API response
-export function getApiErrorMessage(error: unknown): string {
-  const axiosError = error as AxiosError<ApiErrorResponse>;
-  if (axiosError.response?.data?.errors?.[0]?.details) {
-    return axiosError.response.data.errors[0].details;
-  }
-  if (axiosError.response?.data?.errors?.[0]?.title) {
-    return axiosError.response.data.errors[0].title;
-  }
-  return 'An unexpected error occurred. Please try again.';
-}
+// Re-exports the centralized error handler for backwards compatibility
+export { getErrorMessage as getApiErrorMessage } from '@/lib/services/errorHandler';

@@ -46,12 +46,6 @@ export function RegisterStepOneForm() {
 
   return (
     <div className="space-y-6">
-      {/* OAuth Buttons */}
-      <OAuthButtons disabled={registerMutation.isPending} />
-      
-      {/* Divider */}
-      <OAuthDivider />
-      
       {/* Email Registration Form */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -95,15 +89,21 @@ export function RegisterStepOneForm() {
               </>
             )}
           </Button>
-
-          <div className="text-center text-sm text-muted-foreground pt-2">
-            Already have an account?{' '}
-            <Link href="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200 hover:underline underline-offset-2">
-              Sign In
-            </Link>
-          </div>
         </form>
       </Form>
+
+      {/* Divider */}
+      <OAuthDivider />
+      
+      {/* OAuth Buttons */}
+      <OAuthButtons disabled={registerMutation.isPending} />
+
+      <div className="text-center text-sm text-muted-foreground pt-2">
+        Already have an account?{' '}
+        <Link href="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200 hover:underline underline-offset-2">
+          Sign In
+        </Link>
+      </div>
     </div>
   );
 }
