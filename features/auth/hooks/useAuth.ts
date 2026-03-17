@@ -4,8 +4,9 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { authService } from '../services';
 import { useAuthStore } from '@/store';
+import { getDeviceId } from '@/lib/utils/device';
 import type { AxiosError } from 'axios';
-import type { ApiErrorResponse } from '@/types/api';
+import type { ApiErrorResponse, OAuthProvider, UserRole } from '@/types/api';
 
 export function useRegisterStepOne() {
   const setRegistrationEmail = useAuthStore((state) => state.setRegistrationEmail);
@@ -77,6 +78,30 @@ export function useLogout() {
       // Even if logout fails, clear local auth state
       clearAuth();
       router.push('/login');
+    },
+  });
+}
+
+export function useOAuthLogin() {
+  const router = useRouter();
+  const setTokens = useAuthStore((state) => state.setTokens);
+
+  return useMutation({
+    mutationFn: ({ 
+      provider, 
+      role, 
+      code 
+    }: { 
+      provider: OAuthProvider; 
+      role: UserRole; 
+      code: string;
+    }) => {
+      const deviceId = getDeviceId();
+      return authService.oauthLogin(provider, role, { code, device_id: deviceId });
+    },
+    onSuccess: (response) => {
+      setTokens(response.access_token, response.refresh_token);
+      router.push('/onboarding/property-details');
     },
   });
 }

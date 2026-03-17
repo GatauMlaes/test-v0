@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import type { OnboardingStep } from '@/types/property';
@@ -36,7 +37,7 @@ export function StickyActionBar({
   };
 
   return (
-    <div className="sticky bottom-0 bg-card/95 backdrop-blur-sm border-t border-border/60 px-4 md:px-6 lg:px-8 py-4 md:py-5 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
+    <div className="sticky bottom-0 bg-card/98 backdrop-blur-md border-t border-border/50 px-4 md:px-6 lg:px-8 py-4 md:py-5 shadow-[0_-8px_30px_-8px_rgba(0,0,0,0.08)]">
       <div className="max-w-[900px] mx-auto flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         {/* Back Button */}
         <Button
@@ -44,9 +45,10 @@ export function StickyActionBar({
           variant="outline"
           onClick={handleBack}
           disabled={isLoading}
-          className="border-primary/80 text-primary hover:bg-primary/5 hover:border-primary h-11 sm:h-11 px-6 w-full sm:w-auto rounded-xl font-semibold transition-all duration-200 active:scale-[0.98]"
+          className="border-border hover:border-primary/50 text-foreground hover:text-primary hover:bg-primary/5 h-11 sm:h-12 px-5 sm:px-6 w-full sm:w-auto rounded-xl font-medium transition-all duration-200 active:scale-[0.98] group"
         >
-          {previousStep ? 'Back' : 'Back to Nusago'}
+          <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+          {previousStep ? 'Back' : 'Exit'}
         </Button>
 
         {/* Save and Continue Button */}
@@ -54,7 +56,7 @@ export function StickyActionBar({
           type="button"
           onClick={onSave}
           disabled={isLoading || !isValid}
-          className="bg-primary hover:bg-[oklch(0.42_0.18_25)] text-primary-foreground px-8 md:px-10 h-11 sm:h-11 w-full sm:w-auto rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98]"
+          className="bg-primary hover:bg-[oklch(0.42_0.18_25)] text-primary-foreground px-6 sm:px-8 md:px-10 h-11 sm:h-12 w-full sm:w-auto rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-[0.98] group disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
@@ -62,9 +64,15 @@ export function StickyActionBar({
               Saving...
             </>
           ) : isLastStep ? (
-            'Submit'
+            <>
+              <Check className="mr-2 h-4 w-4" />
+              Submit Application
+            </>
           ) : (
-            'Save and Continue'
+            <>
+              Save and Continue
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+            </>
           )}
         </Button>
       </div>

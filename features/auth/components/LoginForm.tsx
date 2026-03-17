@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/spinner';
 
 import { loginSchema, type LoginFormData } from '../schemas';
 import { useLogin, getApiErrorMessage } from '../hooks';
+import { OAuthButtons, OAuthDivider } from './OAuthButtons';
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -44,96 +45,108 @@ export function LoginForm() {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-medium">Email Address</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    {...field}
-                    type="email"
-                    placeholder="Enter your email"
-                    className="pl-11 h-12 rounded-xl border-border/60 focus:border-primary/50 transition-colors duration-200"
-                    disabled={loginMutation.isPending}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="space-y-6">
+      {/* OAuth Buttons */}
+      <OAuthButtons disabled={loginMutation.isPending} />
+      
+      {/* Divider */}
+      <OAuthDivider />
+      
+      {/* Email Login Form */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-foreground">Email Address</FormLabel>
+                <FormControl>
+                  <div className="relative group">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="name@company.com"
+                      className="pl-11 h-12 rounded-xl border-border/60 hover:border-border focus:border-primary/50 bg-background transition-all duration-200"
+                      disabled={loginMutation.isPending}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel className="text-sm font-medium">Password</FormLabel>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-primary hover:text-primary/80 font-medium transition-colors duration-200"
-                >
-                  Forgot Password?
-                </Link>
-              </div>
-              <FormControl>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    {...field}
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    className="pl-11 pr-11 h-12 rounded-xl border-border/60 focus:border-primary/50 transition-colors duration-200"
-                    disabled={loginMutation.isPending}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel className="text-sm font-medium text-foreground">Password</FormLabel>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-primary hover:text-primary/80 font-medium transition-colors duration-200"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+                    Forgot Password?
+                  </Link>
                 </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormControl>
+                  <div className="relative group">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
+                    <Input
+                      {...field}
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      className="pl-11 pr-11 h-12 rounded-xl border-border/60 hover:border-border focus:border-primary/50 bg-background transition-all duration-200"
+                      disabled={loginMutation.isPending}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button
-          type="submit"
-          className="w-full h-12 bg-primary hover:bg-[oklch(0.42_0.18_25)] text-primary-foreground rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98]"
-          disabled={loginMutation.isPending}
-        >
-          {loginMutation.isPending ? (
-            <>
-              <Spinner className="mr-2" />
-              Signing In...
-            </>
-          ) : (
-            'Sign In'
-          )}
-        </Button>
+          <Button
+            type="submit"
+            className="w-full h-12 bg-primary hover:bg-[oklch(0.42_0.18_25)] text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-[0.98] group"
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? (
+              <>
+                <Spinner className="mr-2" />
+                Signing In...
+              </>
+            ) : (
+              <>
+                Sign In
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+              </>
+            )}
+          </Button>
 
-        <div className="text-center text-sm text-muted-foreground pt-2">
-          {"Don't have an account? "}
-          <Link href="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200">
-            Register
-          </Link>
-        </div>
-      </form>
-    </Form>
+          <div className="text-center text-sm text-muted-foreground pt-2">
+            {"Don't have an account? "}
+            <Link href="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200 hover:underline underline-offset-2">
+              Register
+            </Link>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }

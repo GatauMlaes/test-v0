@@ -59,7 +59,7 @@ export interface LoginRequest {
 }
 
 export interface OAuthLoginRequest {
-  exchange_code: string;
+  code: string;
   device_id: string;
 }
 
@@ -129,5 +129,14 @@ export interface ResetPasswordResponse {
 }
 
 // OAuth Types
-export type OAuthProvider = 'google' | 'github';
+export type OAuthProvider = 'google' | 'facebook';
 export type UserRole = 'user' | 'partner';
+
+// OAuth Config
+export interface OAuthConfig {
+  provider: OAuthProvider;
+  clientId: string;
+  redirectUri: string;
+  scope: string;
+  authUrl: string;
+}

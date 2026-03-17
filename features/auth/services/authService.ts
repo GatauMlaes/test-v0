@@ -94,7 +94,7 @@ export const authService = {
   },
 
   /**
-   * OAuth Login (Google, GitHub)
+   * OAuth Login (Google, Facebook)
    */
   async oauthLogin(
     provider: OAuthProvider,
