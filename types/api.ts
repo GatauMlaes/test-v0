@@ -296,11 +296,20 @@ export interface CreateVehicleRequest {
 
 export interface UpdateVehicleRequest extends Partial<CreateVehicleRequest> {}
 
-// File Upload Types
+// File Upload Types - Updated from api-docs.yml
 export interface FileUploadResponse {
-  file_path: string;
-  file_type: 'image' | 'document';
-  file_size: number;
+  filename: string;
+  folder: 'images/avatars' | 'images/hotels' | 'images/vehicles/units' | 'documents/hotels' | 'documents/vehicles';
   accessibility: 'public' | 'private';
-  uploaded_at: string;
+  url: string;
+}
+
+export interface FileDeleteRequest {
+  filename: string;
+  folder: 'images/avatars' | 'images/hotels' | 'images/vehicles/units' | 'documents/hotels' | 'documents/vehicles';
+  accessibility: 'public' | 'private';
+}
+
+export interface FileDeleteResponse {
+  deleted: boolean;
 }

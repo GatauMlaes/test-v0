@@ -1,25 +1,23 @@
 import apiClient from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/constants/api';
-import type { FileUploadResponse } from '@/types/api';
+import type { FileUploadResponse, ApiResponse, FileDeleteRequest } from '@/types/api';
 
 export const fileUploadService = {
   /**
-   * Upload image or document
+   * Upload image - Uses /api/v1/uploads/images endpoint
    */
-  async upload(
+  async uploadImage(
     file: File,
-    type: 'hotel' | 'vehicle',
+    folder: 'images/avatars' | 'images/hotels' | 'images/vehicles/units',
     accessibility: 'public' | 'private' = 'public'
   ): Promise<FileUploadResponse> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', file);
+    formData.append('folder', folder);
     formData.append('accessibility', accessibility);
 
-    const endpoint =
-      type === 'hotel' ? API_ENDPOINTS.HOTEL_UPLOAD : API_ENDPOINTS.VEHICLE_UPLOAD;
-
-    const response = await apiClient.post<{ data: FileUploadResponse }>(
-      endpoint,
+    const response = await apiClient.post<ApiResponse<FileUploadResponse>>(
+      API_ENDPOINTS.UPLOAD_IMAGE,
       formData,
       {
         headers: {
@@ -32,34 +30,93 @@ export const fileUploadService = {
   },
 
   /**
-   * Validate file before upload
+   * Upload document - Uses /api/v1/uploads/documents endpoint
    */
-  validateFile(file: File, type: 'image' | 'document'): { valid: boolean; error?: string } {
-    const maxSizes = {
-      image: 5 * 1024 * 1024, // 5MB
-      document: 10 * 1024 * 1024, // 10MB
-    };
+  async uploadDocument(
+    file: File,
+    folder: 'documents/hotels' | 'documents/vehicles',
+    accessibility: 'public' | 'private' = 'private'
+  ): Promise<FileUploadResponse> {
+    const formData = new FormData();
+    formData.append('document', file);
+    formData.append('folder', folder);
+    formData.append('accessibility', accessibility);
 
-    const allowedTypes = {
-      image: ['image/jpeg', 'image/png', 'image/webp'],
-      document: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    };
+    const response = await apiClient.post<ApiResponse<FileUploadResponse>>(
+      API_ENDPOINTS.UPLOAD_DOCUMENT,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
 
-    // Check file size
-    if (file.size > maxSizes[type]) {
-      const maxMB = maxSizes[type] / (1024 * 1024);
+    return response.data.data;
+  },
+
+  /**
+   * Delete image
+   */
+  async deleteImage(
+    filename: string,
+    folder: 'images/avatars' | 'images/hotels' | 'images/vehicles/units',
+    accessibility: 'public' | 'private'
+  ): Promise<boolean> {
+    const response = await apiClient.delete<ApiResponse<{ deleted: boolean }>>(
+      API_ENDPOINTS.DELETE_IMAGE,
+      {
+        data: {
+          filename,
+          folder,
+          accessibility,
+        } as FileDeleteRequest,
+      }
+    );
+
+    return response.data.data.deleted;
+  },
+
+  /**
+   * Delete document
+   */
+  async deleteDocument(
+    filename: string,
+    folder: 'documents/hotels' | 'documents/vehicles',
+    accessibility: 'public' | 'private'
+  ): Promise<boolean> {
+    const response = await apiClient.delete<ApiResponse<{ deleted: boolean }>>(
+      API_ENDPOINTS.DELETE_DOCUMENT,
+      {
+        data: {
+          filename,
+          folder,
+          accessibility,
+        } as FileDeleteRequest,
+      }
+    );
+
+    return response.data.data.deleted;
+  },
+
+  /**
+   * Validate image file
+   */
+  validateImage(file: File): { valid: boolean; error?: string } {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (file.size > maxSize) {
       return {
         valid: false,
-        error: `File size must be less than ${maxMB}MB`,
+        error: 'Image size must be less than 5MB',
       };
     }
 
-    // Check file type
-    if (!allowedTypes[type].includes(file.type)) {
-      const typeName = type === 'image' ? 'JPG, PNG, WebP' : 'PDF, DOC, DOCX';
+    if (!allowedTypes.includes(file.type)) {
       return {
         valid: false,
-        error: `Only ${typeName} files are allowed`,
+        error: 'Only JPG, PNG, and WebP files are allowed',
       };
     }
 
@@ -67,16 +124,30 @@ export const fileUploadService = {
   },
 
   /**
-   * Generate preview URL for file
+   * Validate document file
    */
-  getPreviewUrl(filePath: string): string {
-    // If file path is already a full URL, return it
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      return filePath;
+  validateDocument(file: File): { valid: boolean; error?: string } {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+
+    if (file.size > maxSize) {
+      return {
+        valid: false,
+        error: 'Document size must be less than 10MB',
+      };
     }
 
-    // Otherwise construct API URL
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    return `${baseUrl}${filePath}`;
+    if (!allowedTypes.includes(file.type)) {
+      return {
+        valid: false,
+        error: 'Only PDF, DOC, and DOCX files are allowed',
+      };
+    }
+
+    return { valid: true };
   },
 };
