@@ -12,6 +12,22 @@ export const API_ENDPOINTS = {
   LOGOUT: '/api/v1/auth/logout',
   FORGOT_PASSWORD: '/api/v1/auth/password/forgot',
   RESET_PASSWORD: '/api/v1/auth/password/reset',
+  
+  // Hotel Management
+  HOTELS_LIST: '/api/v1/hotels',
+  HOTEL_DETAIL: (id: string) => `/api/v1/hotels/${id}`,
+  HOTEL_CREATE: '/api/v1/hotels',
+  HOTEL_UPDATE: (id: string) => `/api/v1/hotels/${id}`,
+  HOTEL_DELETE: (id: string) => `/api/v1/hotels/${id}`,
+  HOTEL_UPLOAD: '/api/v1/hotels/upload',
+  
+  // Vehicle Management
+  VEHICLES_LIST: '/api/v1/vehicles',
+  VEHICLE_DETAIL: (id: string) => `/api/v1/vehicles/${id}`,
+  VEHICLE_CREATE: '/api/v1/vehicles',
+  VEHICLE_UPDATE: (id: string) => `/api/v1/vehicles/${id}`,
+  VEHICLE_DELETE: (id: string) => `/api/v1/vehicles/${id}`,
+  VEHICLE_UPLOAD: '/api/v1/vehicles/upload',
 } as const;
 
 export const TOKEN_KEYS = {

@@ -140,3 +140,167 @@ export interface OAuthConfig {
   scope: string;
   authUrl: string;
 }
+
+// Pagination Types
+export interface PaginationMeta {
+  page: number;
+  size: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface PaginatedResponse<T> {
+  title: string;
+  status: string;
+  code: number;
+  meta: PaginationMeta;
+  data: T[];
+}
+
+// Hotel Types
+export interface HotelAmenity {
+  id: string;
+  name: string;
+}
+
+export interface HotelRoom {
+  id: string;
+  room_type: string;
+  total_rooms: number;
+  price_per_night: number;
+  bed_type: string;
+  capacity: number;
+}
+
+export interface HotelAsset {
+  id: string;
+  file_path: string;
+  file_type: 'image' | 'document';
+  file_size: number;
+  accessibility: 'public' | 'private';
+  uploaded_at: string;
+}
+
+export interface Hotel {
+  id: string;
+  name: string;
+  description: string;
+  country: string;
+  province: string;
+  city: string;
+  address: string;
+  postal_code: string;
+  latitude: number;
+  longitude: number;
+  phone: string;
+  email: string;
+  website: string;
+  check_in_time: string;
+  check_out_time: string;
+  amenities: HotelAmenity[];
+  rooms: HotelRoom[];
+  assets: HotelAsset[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateHotelRequest {
+  name: string;
+  description: string;
+  country: string;
+  province: string;
+  city: string;
+  address: string;
+  postal_code: string;
+  latitude: number;
+  longitude: number;
+  phone: string;
+  email: string;
+  website: string;
+  check_in_time: string;
+  check_out_time: string;
+  amenities?: { id: string; name: string }[];
+  rooms?: Array<{
+    room_type: string;
+    total_rooms: number;
+    price_per_night: number;
+    bed_type: string;
+    capacity: number;
+  }>;
+}
+
+export interface UpdateHotelRequest extends Partial<CreateHotelRequest> {}
+
+// Vehicle Types
+export interface VehicleSpecification {
+  id: string;
+  key: string;
+  value: string;
+}
+
+export interface VehicleAsset {
+  id: string;
+  file_path: string;
+  file_type: 'image' | 'document';
+  file_size: number;
+  accessibility: 'public' | 'private';
+  uploaded_at: string;
+}
+
+export interface Vehicle {
+  id: string;
+  type: 'car' | 'motorcycle' | 'van' | 'bus';
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  license_plate: string;
+  capacity: number;
+  price_per_day: number;
+  description: string;
+  country: string;
+  province: string;
+  city: string;
+  address: string;
+  postal_code: string;
+  phone: string;
+  email: string;
+  specifications: VehicleSpecification[];
+  assets: VehicleAsset[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateVehicleRequest {
+  type: 'car' | 'motorcycle' | 'van' | 'bus';
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  license_plate: string;
+  capacity: number;
+  price_per_day: number;
+  description: string;
+  country: string;
+  province: string;
+  city: string;
+  address: string;
+  postal_code: string;
+  phone: string;
+  email: string;
+  specifications?: Array<{
+    key: string;
+    value: string;
+  }>;
+}
+
+export interface UpdateVehicleRequest extends Partial<CreateVehicleRequest> {}
+
+// File Upload Types
+export interface FileUploadResponse {
+  file_path: string;
+  file_type: 'image' | 'document';
+  file_size: number;
+  accessibility: 'public' | 'private';
+  uploaded_at: string;
+}
